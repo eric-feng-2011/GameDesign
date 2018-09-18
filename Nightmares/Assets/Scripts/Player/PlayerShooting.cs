@@ -2,12 +2,19 @@
 
 public class PlayerShooting : MonoBehaviour
 {
+    
+    public GameObject Grenade;
+
+    public float throwForce = 10f;
+
     public int damagePerShot = 20;
     public float timeBetweenBullets = 0.15f;
+    public float timeBetweenGrenades = 5f;
     public float range = 100f;
 
 
     float timer;
+    float grenadeTimer;
     Ray shootRay = new Ray();			//Shooting out a ray to see what we hit
     RaycastHit shootHit;				//Return whatever it is that we hit
     int shootableMask;					//Just like how the camera raycast was only supposed to hit the floor, so should this only hit shootable objects
@@ -32,10 +39,14 @@ public class PlayerShooting : MonoBehaviour
     {	
 		//Very similar to the enemy attack. Checks the interval in between attacks except along with input from user
         timer += Time.deltaTime;
+        grenadeTimer += Time.deltaTime;
 
 		if(Input.GetButton ("Fire1") && timer >= timeBetweenBullets && Time.timeScale != 0)
         {
             Shoot ();
+        }
+        if(Input.GetButton("Fire2") && grenadeTimer >= timeBetweenGrenades && Time.timeScale != 0) {
+            ThrowGrenade();
         }
 
 		//Checks if enought time has passed for the special effects to disappear/disable
@@ -53,6 +64,14 @@ public class PlayerShooting : MonoBehaviour
         gunLight.enabled = false;
     }
 
+
+    void ThrowGrenade() {
+        grenadeTimer = 0.0f;
+        Vector3 throwDirection =  (gameObject.transform.forward + gameObject.transform.up) * throwForce;
+        GameObject grenade = Instantiate(Grenade, gameObject.transform);
+
+        grenade.GetComponent<Rigidbody>().AddForce(throwDirection);
+    }
 
     void Shoot ()
     {
